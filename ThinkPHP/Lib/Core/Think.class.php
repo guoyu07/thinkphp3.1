@@ -182,7 +182,14 @@ class Think {
                 EXTEND_PATH.'Action/'.$file),true)) {
                 return ;
             }
-        }elseif(substr($class,0,5)=='Cache'){ // 加载缓存驱动
+        }elseif(substr($class,-10)=='Controller'){ // 加载控制器
+			if(require_array(array(
+				LIB_PATH.'Controller/'.$group.$file,
+				$libPath.'Controller/'.$file,
+				EXTEND_PATH.'Controller/'.$file),true)) {
+				return ;
+			}
+		}elseif(substr($class,0,5)=='Cache'){ // 加载缓存驱动
             if(require_array(array(
                 EXTEND_PATH.'Driver/Cache/'.$file,
                 CORE_PATH.'Driver/Cache/'.$file),true)){
