@@ -58,7 +58,7 @@ class App {
             }
         }
 
-        C('CACHE_PATH',CACHE_PATH.$group);
+        C('LOG_PATH',realpath(LOG_PATH).'/');
         //动态配置 TMPL_EXCEPTION_FILE,改为绝对地址
         C('TMPL_EXCEPTION_FILE',realpath(C('TMPL_EXCEPTION_FILE')));
         return ;
