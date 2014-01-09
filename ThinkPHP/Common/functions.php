@@ -837,3 +837,35 @@ function F($file, $content = false, $mod = '')
 		}
 	}
 }
+
+/**
+ * regex
+ * 使用正则验证数据
+ *
+ * @param string $value  要验证的数据
+ * @param string $rule   验证规则
+ * @return mixed
+ */
+function regex($value, $rule)
+{
+	$validate = array(
+		'require' => '/.+/', //必填
+		'email' => '/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/', //邮箱
+		'url' => '/^http:\/\/[a-zA-Z0-9]+\.[a-zA-Z0-9]+[\/=\?%\-&_~`@\[\]\':+!]*([^<>\"\"])*$/', //链接
+		'currency' => '/^\d+(\.\d+)?$/', //货币
+		'number' => '/^\d+$/', //数字
+		'zip' => '/^[0-9]\d{5}$/', //邮编
+		'tel' => '/^1[\d]{10}$/', //电话
+		'integer' => '/^[-\+]?\d+$/', //整型
+		'double' => '/^[-\+]?\d+(\.\d+)?$/', //带小数点
+		'english' => '/^[a-zA-Z]+$/', //英文字母
+		'chinese' => '/^[\x{4e00}-\x{9fa5}]+$/u', //中文汉字
+		'pinyin' => '/^[a-zA-Z0-9\-\_]+$/', //拼音
+		'username' => '/^(?!_)(?!.*?_$)[a-zA-Z0-9_\x{4e00}-\x{9fa5}]{1,15}$/u', //用户名
+		'en' => '/^[a-zA-Z0-9_\s\-]+$/', //英文字符
+		'cn' => '/^[\w\s\-\x{4e00}-\x{9fa5}]+$/u' //中文字符
+	);
+	// 检查是否有内置的正则表达式
+	if (isset($validate[strtolower($rule)])) $rule = $validate[strtolower($rule)];
+	return preg_match($rule, strval($value)) === 1;
+}

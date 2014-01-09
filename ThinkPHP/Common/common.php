@@ -57,18 +57,12 @@ function T($template='',$layer=''){
 
 /**
  * 获取输入参数 支持过滤和默认值
- * 使用方法:
- * <code>
- * I('id',0); 获取id参数 自动判断get或者post
- * I('post.name','','htmlspecialchars'); 获取$_POST['name']
- * I('get.'); 获取$_GET
- * </code> 
  * @param string $name 变量的名称 支持指定类型
  * @param mixed $default 不存在的时候默认值
  * @param mixed $filter 参数过滤方法
  * @return mixed
  */
-function I($name,$default='',$filter=null) {
+function I($name,$filter='int',$default='') {
     if(strpos($name,'.')) { // 指定参数来源
         list($method,$name) =   explode('.',$name,2);
     }else{ // 默认为自动判断
@@ -101,44 +95,19 @@ function I($name,$default='',$filter=null) {
         default:
             return NULL;
     }
-    // 全局过滤
-    // array_walk_recursive($input,'filter_exp');
-    if(C('VAR_FILTERS')) {
-        $_filters    =   explode(',',C('VAR_FILTERS'));
-        foreach($_filters as $_filter){
-            // 全局参数过滤
-            array_walk_recursive($input,$_filter);
-        }
-    }
-    if(empty($name)) { // 获取全部变量
-        $data       =   $input; 
-        $filters    =   isset($filter)?$filter:C('DEFAULT_FILTER');
-        if($filters) {
-            $filters    =   explode(',',$filters);
-            foreach($filters as $filter){
-                $data   =   array_map($filter,$data); // 参数过滤
-            }
-        }        
-    }elseif(isset($input[$name])) { // 取值操作
-        $data       =	$input[$name];
-        $filters    =   isset($filter)?$filter:C('DEFAULT_FILTER');
-        if($filters) {
-            $filters    =   explode(',',$filters);
-            foreach($filters as $filter){
-                if(function_exists($filter)) {
-                    $data   =   is_array($data)?array_map($filter,$data):$filter($data); // 参数过滤
-                }else{
-                    $data   =   filter_var($data,is_int($filter)?$filter:filter_id($filter));
-                    if(false === $data) {
-                        return	 isset($default)?$default:NULL;
-                    }
-                }
-            }
-        }
-    }else{ // 变量默认值
-        $data       =	 isset($default)?$default:NULL;
-    }
-    return $data;
+	$value = isset($input[$name]) ? $input[$name] : null;
+	if (is_array($filter)) return in_array($value, $filter) ? $value : $default;
+	if (!is_string($filter)) return $value;
+	switch ($filter) {
+		case 'int':
+			return is_null($value) ? (is_null($default) ? 0 : $default) : intval($value);
+		case 'str':
+			return is_null($value) ? (is_null($default) ? '' : $default) : strval($value);
+		case 'arr':
+			return is_array($value) ? $value : (is_array($default) ? $default : array());
+		default:
+			return is_null($value) ? $default : (regex($value, $filter) ? $value : $default);
+	}
 }
 
 /**
