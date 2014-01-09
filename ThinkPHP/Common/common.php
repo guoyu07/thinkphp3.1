@@ -352,7 +352,7 @@ function vendor($class, $baseUrl = '', $ext='.php') {
 }
 
 /**
- * 快速定义和导入别名 支持批量定义
+ * 快速定义和导入别名 支持批量定义 key不区分大小写
  * @param string|array $alias 类库别名
  * @param string $classfile 对应类库
  * @return boolean
@@ -360,6 +360,7 @@ function vendor($class, $baseUrl = '', $ext='.php') {
 function alias_import($alias, $classfile='') {
     static $_alias = array();
     if (is_string($alias)) {
+        $alias=strtolower($alias);
         if(isset($_alias[$alias])) {
             return require_cache($_alias[$alias]);
         }elseif ('' !== $classfile) {
@@ -368,12 +369,11 @@ function alias_import($alias, $classfile='') {
             return;
         }
     }elseif (is_array($alias)) {
-        $_alias   =  array_merge($_alias,$alias);
+        $_alias   =  array_merge($_alias,array_change_key_case($alias));
         return;
     }
     return false;
 }
-
 /**
  * D函数用于实例化Model 格式 项目://分组/模块
  * @param string $name Model资源地址
@@ -383,7 +383,7 @@ function alias_import($alias, $classfile='') {
 function D($name='',$layer='') {
     if(empty($name)) return new Model;
     static $_model  =   array();
-    $layer          =   $layer?$layer:C('DEFAULT_M_LAYER');
+    $layer          =   ucfirst($layer?$layer:C('DEFAULT_M_LAYER'));
     if(strpos($name,'://')) {// 指定项目
         list($app)  =   explode('://',$name);
         $name       =   str_replace('://','/'.$layer.'/',$name);
