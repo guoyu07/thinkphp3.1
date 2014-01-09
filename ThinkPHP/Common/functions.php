@@ -392,10 +392,7 @@ function S($name,$value='',$options=null) {
         return $cache->set($name, $value, $expire);
     }
 }
-// S方法的别名 已经废除 不再建议使用
-function cache($name,$value='',$options=null){
-    return S($name,$value,$options);
-}
+
 
 /**
  * 快速文件数据读取和保存 针对简单类型数据 字符串、数组
@@ -404,7 +401,7 @@ function cache($name,$value='',$options=null){
  * @param string $path 缓存路径
  * @return mixed
  */
-function F($name, $value='', $path=DATA_PATH) {
+function cache($name, $value='', $path=DATA_PATH) {
     static $_cache  = array();
     $filename       = $path . $name . '.php';
     if ('' !== $value) {
@@ -810,4 +807,33 @@ function filter_exp(&$value){
     if (in_array(strtolower($value),array('exp','or'))){
         $value .= ' ';
     }
+}
+
+
+/**
+ * 文件函数
+ * @param $file       需要写入的文件，系统的绝对路径加文件名
+ * @param $content    不填写 读取 null 删除 其他 写入
+ * @param string $mod 写入模式，默认为wb，wb清空写入  ab末尾插入
+ * @return bool
+ */
+function F($file, $content = false, $mod = '')
+{
+	if ($content === false) {
+		return file_get_contents($file);
+	} elseif ($content === null) {
+		return unlink($file);
+	} else {
+		if (!is_dir(dirname($file))) {
+			mkdir(dirname($file), 0755, true);
+		}
+		if (is_array($content)){
+			$content='<?php'.PHP_EOL.'return '.var_export($content,true).';';
+		}
+		if ($mod){
+			return file_put_contents($file, strval($content),$mod);
+		}else{
+			return file_put_contents($file, strval($content));
+		}
+	}
 }
